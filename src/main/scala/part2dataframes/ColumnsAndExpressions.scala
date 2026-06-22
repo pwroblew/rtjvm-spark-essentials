@@ -29,7 +29,7 @@ object ColumnsAndExpressions {
       carsDF.col("Name"),
       col("Acceleration"),
       column("Weight_in_lbs"),
-      $"Year", // interpolated string, returns a Column object
+      $"Year",       // interpolated string, returns a Column object
       $"Horsepower", // same as above
       expr("Origin") // EXPRESSION
     )
@@ -38,7 +38,7 @@ object ColumnsAndExpressions {
     carsDF.select("Name", "Year")
 
     // EXPRESSIONS
-    val simplestExpression = carsDF.col("Weight_in_lbs")
+    val simplestExpression   = carsDF.col("Weight_in_lbs")
     val weightInKgExpression = carsDF.col("Weight_in_lbs") / 2.2
 
     val carsWithWeightsDF = carsDF.select(
@@ -58,7 +58,7 @@ object ColumnsAndExpressions {
     // DF processing
 
     // adding a column
-    val carsWithKg3DF = carsDF.withColumn("Weight_in_kg_3", col("Weight_in_lbs") / 2.2)
+    val carsWithKg3DF         = carsDF.withColumn("Weight_in_kg_3", col("Weight_in_lbs") / 2.2)
     // renaming a column
     val carsWithColumnRenamed = carsDF.withColumnRenamed("Weight_in_lbs", "Weight in pounds")
     // careful with column names
@@ -67,37 +67,40 @@ object ColumnsAndExpressions {
     carsWithColumnRenamed.drop("Cylinders", "Displacement")
 
     // filtering
-    val europeanCarsDF = carsDF.filter(col("Origin") =!= "USA")
-    val europeanCarsDF2 = carsDF.where(col("Origin") =!= "USA")
+    val europeanCarsDF          = carsDF.filter(col("Origin") =!= "USA")
+    val europeanCarsDF2         = carsDF.where(col("Origin") =!= "USA")
     // filtering with expression strings
-    val americanCarsDF = carsDF.filter("Origin = 'USA'")
+    val americanCarsDF          = carsDF.filter("Origin = 'USA'")
     // chain filters
-    val americanPowerfulCarsDF = carsDF.filter(col("Origin") === "USA").filter(col("Horsepower") > 150)
+    val americanPowerfulCarsDF  =
+      carsDF.filter(col("Origin") === "USA").filter(col("Horsepower") > 150)
     val americanPowerfulCarsDF2 = carsDF.filter(col("Origin") === "USA" and col("Horsepower") > 150)
     val americanPowerfulCarsDF3 = carsDF.filter("Origin = 'USA' and Horsepower > 150")
 
     // unioning = adding more rows
-    val moreCarsDF = spark.read.option("inferSchema", "true").json("src/main/resources/data/more_cars.json")
-    val allCarsDF = carsDF.union(moreCarsDF) // works if the DFs have the same schema
+    val moreCarsDF =
+      spark.read.option("inferSchema", "true").json("src/main/resources/data/more_cars.json")
+    val allCarsDF  = carsDF.union(moreCarsDF) // works if the DFs have the same schema
 
     // distinct values
     val allCountriesDF = carsDF.select("Origin").distinct()
 
-    /**
-      * Exercises
+    /** Exercises
       *
-      * 1. Read the movies DF and select 2 columns of your choice
-      * 2. Create another column summing up the total profit of the movies = US_Gross + Worldwide_Gross + DVD sales
-      * 3. Select all COMEDY movies with IMDB rating above 6
+      *   1. Read the movies DF and select 2 columns of your choice
+      *   2. Create another column summing up the total profit of the movies = US_Gross +
+      *      Worldwide_Gross + DVD sales
+      *   3. Select all COMEDY movies with IMDB rating above 6
       *
       * Use as many versions as possible
       */
 
-    val moviesDF = spark.read.option("inferSchema", "true").json("src/main/resources/data/movies.json")
+    val moviesDF =
+      spark.read.option("inferSchema", "true").json("src/main/resources/data/movies.json")
     moviesDF.show()
 
     // 1
-    val moviesReleaseDF = moviesDF.select("Title", "Release_Date")
+    val moviesReleaseDF  = moviesDF.select("Title", "Release_Date")
     val moviesReleaseDF2 = moviesDF.select(
       moviesDF.col("Title"),
       col("Release_Date"),
@@ -105,7 +108,8 @@ object ColumnsAndExpressions {
       expr("IMDB_Rating")
     )
     val moviesReleaseDF3 = moviesDF.selectExpr(
-      "Title", "Release_Date"
+      "Title",
+      "Release_Date"
     )
 
     // 2

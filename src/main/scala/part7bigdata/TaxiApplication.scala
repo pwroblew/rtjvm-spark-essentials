@@ -25,18 +25,16 @@ object TaxiApplication {
       .csv("src/main/resources/data/taxi_zones.csv")
     taxiZonesDF.printSchema()
 
-    /**
-      * Questions:
+    /** Questions:
       *
-      * 1. Which zones have the most pickups/dropoffs overall?
-      * 2. What are the peak hours for taxi?
-      * 3. How are the trips distributed by length? Why are people taking the cab?
-      * 4. What are the peak hours for long/short trips?
-      * 5. What are the top 3 pickup/dropoff zones for long/short trips?
-      * 6. How are people paying for the ride, on long/short trips?
-      * 7. How is the payment type evolving with time?
-      * 8. Can we explore a ride-sharing opportunity by grouping close short trips?
-      *
+      *   1. Which zones have the most pickups/dropoffs overall?
+      *   2. What are the peak hours for taxi?
+      *   3. How are the trips distributed by length? Why are people taking the cab?
+      *   4. What are the peak hours for long/short trips?
+      *   5. What are the top 3 pickup/dropoff zones for long/short trips?
+      *   6. How are people paying for the ride, on long/short trips?
+      *   7. How is the payment type evolving with time?
+      *   8. Can we explore a ride-sharing opportunity by grouping close short trips?
       */
 
     // 1
@@ -59,9 +57,9 @@ object TaxiApplication {
       .orderBy(col("totalTrips").desc_nulls_last)
 
     // 3
-    val tripDistanceDF = taxiDF.select(col("trip_distance").as("distance"))
+    val tripDistanceDF        = taxiDF.select(col("trip_distance").as("distance"))
     val longDistanceThreshold = 30
-    val tripDistanceStatsDF = tripDistanceDF.select(
+    val tripDistanceStatsDF   = tripDistanceDF.select(
       count("*").as("count"),
       lit(longDistanceThreshold).as("threshold"),
       mean("distance").as("mean"),
@@ -70,8 +68,9 @@ object TaxiApplication {
       max("distance").as("max")
     )
 
-    val tripsWithLengthDF = taxiDF.withColumn("isLong", col("trip_distance") >= longDistanceThreshold)
-    val tripsByLengthDF = tripsWithLengthDF.groupBy("isLong").count()
+    val tripsWithLengthDF =
+      taxiDF.withColumn("isLong", col("trip_distance") >= longDistanceThreshold)
+    val tripsByLengthDF   = tripsWithLengthDF.groupBy("isLong").count()
 
     // 4
     val pickupsByHourByLengthDF = tripsWithLengthDF
@@ -110,7 +109,11 @@ object TaxiApplication {
     taxiDF.select(count("*")).show()
 
     val groupAttemptsDF = taxiDF
-      .select(round(unix_timestamp(col("tpep_pickup_datetime")) / 300).cast("integer").as("fiveMinId"), col("PULocationID"), col("total_amount"))
+      .select(
+        round(unix_timestamp(col("tpep_pickup_datetime")) / 300).cast("integer").as("fiveMinId"),
+        col("PULocationID"),
+        col("total_amount")
+      )
       .where(col("passenger_count") < 3)
       .groupBy(col("fiveMinId"), col("PULocationID"))
       .agg(count("*").as("total_trips"), sum(col("total_amount")).as("total_amount"))
@@ -120,17 +123,26 @@ object TaxiApplication {
       .join(taxiZonesDF, col("PULocationID") === col("LocationID"))
       .drop("LocationID", "service_zone")
 
-    val percentGroupAttempt = 0.05
+    val percentGroupAttempt   = 0.05
     val percentAcceptGrouping = 0.3
-    val discount = 5
-    val extraCost = 2
-    val avgCostReduction = 0.6 * taxiDF.select(avg(col("total_amount"))).as[Double].take(1)(0)
+    val discount              = 5
+    val extraCost             = 2
+    val avgCostReduction      = 0.6 * taxiDF.select(avg(col("total_amount"))).as[Double].take(1)(0)
 
     val groupingEstimateEconomicImpactDF = groupAttemptsDF
       .withColumn("groupedRides", col("total_trips") * percentGroupAttempt)
-      .withColumn("acceptedGroupedRidesEconomicImpact", col("groupedRides") * percentAcceptGrouping * (avgCostReduction - discount))
-      .withColumn("rejectedGroupedRidesEconomicImpact", col("groupedRides") * (1 - percentAcceptGrouping) * extraCost)
-      .withColumn("totalImpact", col("acceptedGroupedRidesEconomicImpact") + col("rejectedGroupedRidesEconomicImpact"))
+      .withColumn(
+        "acceptedGroupedRidesEconomicImpact",
+        col("groupedRides") * percentAcceptGrouping * (avgCostReduction - discount)
+      )
+      .withColumn(
+        "rejectedGroupedRidesEconomicImpact",
+        col("groupedRides") * (1 - percentAcceptGrouping) * extraCost
+      )
+      .withColumn(
+        "totalImpact",
+        col("acceptedGroupedRidesEconomicImpact") + col("rejectedGroupedRidesEconomicImpact")
+      )
 
     val totalProfitDF = groupingEstimateEconomicImpactDF.select(sum(col("totalImpact")).as("total"))
     // 40k/day = 12 million/year!!!

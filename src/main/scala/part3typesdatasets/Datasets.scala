@@ -5,21 +5,19 @@ import java.sql.Date
 import org.apache.spark.sql.{DataFrame, Dataset, Encoders, SparkSession}
 import org.apache.spark.sql.functions._
 
-
 object Datasets {
 
-
   case class Car(
-                  Name: String,
-                  Miles_per_Gallon: Option[Double],
-                  Cylinders: Long,
-                  Displacement: Double,
-                  Horsepower: Option[Long],
-                  Weight_in_lbs: Long,
-                  Acceleration: Double,
-                  Year: String,
-                  Origin: String
-                )
+      Name: String,
+      Miles_per_Gallon: Option[Double],
+      Cylinders: Long,
+      Displacement: Double,
+      Horsepower: Option[Long],
+      Weight_in_lbs: Long,
+      Acceleration: Double,
+      Year: String,
+      Origin: String
+  )
 
   case class Guitar(id: Long, make: String, model: String, guitarType: String)
   case class GuitarPlayer(id: Long, name: String, guitars: Seq[Long], band: Long)
@@ -40,15 +38,13 @@ object Datasets {
     numbersDF.printSchema()
 
     // convert a DF to a Dataset
-    implicit val intEncoder = Encoders.scalaInt
+    implicit val intEncoder     = Encoders.scalaInt
     val numbersDS: Dataset[Int] = numbersDF.as[Int]
 
     // dataset of a complex type
     // 1 - define your case class
     // Important: make sure it's either a top-level definition or belongs to other classes/objects.
     // Do not have your case classes defined locally in methods.
-
-
 
     // 2 - read the DF from the file
     def readDF(filename: String) = spark.read
@@ -68,12 +64,11 @@ object Datasets {
     // map, flatMap, fold, reduce, for comprehensions ...
     val carNamesDS = carsDS.map(car => car.Name.toUpperCase())
 
-    /**
-      * Exercises
+    /** Exercises
       *
-      * 1. Count how many cars we have
-      * 2. Count how many POWERFUL cars we have (HP > 140)
-      * 3. Average HP for the entire dataset
+      *   1. Count how many cars we have
+      *   2. Count how many POWERFUL cars we have (HP > 140)
+      *   3. Average HP for the entire dataset
       */
 
     // 1
@@ -89,21 +84,24 @@ object Datasets {
     // also use the DF functions!
     carsDS.select(avg(col("Horsepower")))
 
-
     // Joins
-    val guitarsDS = readDF("guitars.json").as[Guitar]
+    val guitarsDS       = readDF("guitars.json").as[Guitar]
     val guitarPlayersDS = readDF("guitarPlayers.json").as[GuitarPlayer]
-    val bandsDS = readDF("bands.json").as[Band]
+    val bandsDS         = readDF("bands.json").as[Band]
 
-    val guitarPlayerBandsDS: Dataset[(GuitarPlayer, Band)] = guitarPlayersDS.joinWith(bandsDS, guitarPlayersDS.col("band") === bandsDS.col("id"), "inner")
+    val guitarPlayerBandsDS: Dataset[(GuitarPlayer, Band)] =
+      guitarPlayersDS.joinWith(bandsDS, guitarPlayersDS.col("band") === bandsDS.col("id"), "inner")
 
-    /**
-      * Exercise: join the guitarsDS and guitarPlayersDS, in an outer join
-      * (hint: use array_contains)
+    /** Exercise: join the guitarsDS and guitarPlayersDS, in an outer join (hint: use
+      * array_contains)
       */
 
     guitarPlayersDS
-      .joinWith(guitarsDS, array_contains(guitarPlayersDS.col("guitars"), guitarsDS.col("id")), "outer")
+      .joinWith(
+        guitarsDS,
+        array_contains(guitarPlayersDS.col("guitars"), guitarsDS.col("id")),
+        "outer"
+      )
       .show()
 
     // Grouping DS

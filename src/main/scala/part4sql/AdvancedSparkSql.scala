@@ -11,7 +11,7 @@ object AdvancedSparkSql {
     .config("spark.sql.warehouse.dir", "src/main/resources/warehouse")
     .getOrCreate()
 
-  val carsDF = spark.read.json("src/main/resources/data/cars.json")
+  val carsDF   = spark.read.json("src/main/resources/data/cars.json")
   val moviesDF = spark.read.json("src/main/resources/data/movies.json")
 
   def main(args: Array[String]): Unit = {

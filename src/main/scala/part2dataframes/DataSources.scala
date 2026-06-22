@@ -41,8 +41,8 @@ object DataSources {
     val carsDFWithOptionMap = spark.read
       .format("json")
       .options(Map(
-        "mode" -> "failFast",
-        "path" -> "src/main/resources/data/cars.json",
+        "mode"        -> "failFast",
+        "path"        -> "src/main/resources/data/cars.json",
         "inferSchema" -> "true"
       ))
       .load()
@@ -53,7 +53,7 @@ object DataSources {
      - save mode = overwrite, append, ignore, errorIfExists
      - path
      - zero or more options
-    */
+     */
     carsDF.write
       .format("json")
       .mode(SaveMode.Overwrite)
@@ -62,7 +62,10 @@ object DataSources {
     // JSON flags
     spark.read
       .schema(carsSchema)
-      .option("dateFormat", "yyyy-MM-dd") // couple with schema; if Spark fails parsing, it will put null
+      .option(
+        "dateFormat",
+        "yyyy-MM-dd"
+      ) // couple with schema; if Spark fails parsing, it will put null
       .option("allowSingleQuotes", "true")
       .option("compression", "uncompressed") // bzip2, gzip, lz4, snappy, deflate
       .json("src/main/resources/data/cars.json")
@@ -91,9 +94,9 @@ object DataSources {
     spark.read.text("src/main/resources/data/sampleTextFile.txt").show()
 
     // Reading from a remote DB
-    val driver = "org.postgresql.Driver"
-    val url = "jdbc:postgresql://localhost:5432/rtjvm"
-    val user = "docker"
+    val driver   = "org.postgresql.Driver"
+    val url      = "jdbc:postgresql://localhost:5432/rtjvm"
+    val user     = "docker"
     val password = "docker"
 
     val employeesDF = spark.read
@@ -105,11 +108,10 @@ object DataSources {
       .option("dbtable", "public.employees")
       .load()
 
-    /**
-      * Exercise: read the movies DF, then write it as
-      * - tab-separated values file
-      * - snappy Parquet
-      * - table "public.movies" in the Postgres DB
+    /** Exercise: read the movies DF, then write it as
+      *   - tab-separated values file
+      *   - snappy Parquet
+      *   - table "public.movies" in the Postgres DB
       */
 
     val moviesDF = spark.read.json("src/main/resources/data/movies.json")

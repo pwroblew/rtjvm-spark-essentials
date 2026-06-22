@@ -41,12 +41,11 @@ object UDFs {
     col("Name"),
     col("Weight_in_lbs"),
     col("Cylinders"),
-    carCategoryUDF(col("Weight_in_lbs"),col("Cylinders")).as("Category")
+    carCategoryUDF(col("Weight_in_lbs"), col("Cylinders")).as("Category")
   )
 
-  /**
-    * Exercise - register a UDF that takes the brand of the cars from their name (first word), capitalize it.
-    * Then show all the distinct brands ordered alphabetically.
+  /** Exercise - register a UDF that takes the brand of the cars from their name (first word),
+    * capitalize it. Then show all the distinct brands ordered alphabetically.
     */
 
   // 1

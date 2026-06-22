@@ -70,7 +70,7 @@ object UDAFs {
       math.pow(buffer.product, 1.0 / buffer.nIntervals)
 
     override def bufferEncoder: Encoder[CGRBuffer] = Encoders.product
-    override def outputEncoder: Encoder[Double] = Encoders.scalaDouble
+    override def outputEncoder: Encoder[Double]    = Encoders.scalaDouble
   }
 
   // 2

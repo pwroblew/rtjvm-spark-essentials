@@ -3,7 +3,6 @@ package part3typesdatasets
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions._
 
-
 object ComplexTypes {
 
   val spark = SparkSession.builder()
@@ -20,19 +19,24 @@ object ComplexTypes {
     // Dates
 
     val moviesWithReleaseDates = moviesDF
-      .select(col("Title"), to_date(col("Release_Date"), "dd-MMM-yy").as("Actual_Release")) // conversion
+      .select(
+        col("Title"),
+        to_date(col("Release_Date"), "dd-MMM-yy").as("Actual_Release")
+      ) // conversion
 
     moviesWithReleaseDates
       .withColumn("Today", current_date()) // today
       .withColumn("Right_Now", current_timestamp()) // this second
-      .withColumn("Movie_Age", datediff(col("Today"), col("Actual_Release")) / 365) // date_add, date_sub
+      .withColumn(
+        "Movie_Age",
+        datediff(col("Today"), col("Actual_Release")) / 365
+      ) // date_add, date_sub
 
     moviesWithReleaseDates.select("*").where(col("Actual_Release").isNull)
 
-    /**
-      * Exercise
-      * 1. How do we deal with multiple date formats?
-      * 2. Read the stocks DF and parse the dates
+    /** Exercise
+      *   1. How do we deal with multiple date formats?
+      *   2. Read the stocks DF and parse the dates
       */
 
     // 1 - parse the DF multiple times, then union the small DFs
@@ -60,11 +64,14 @@ object ComplexTypes {
 
     // Arrays
 
-    val moviesWithWords = moviesDF.select(col("Title"), split(col("Title"), " |,").as("Title_Words")) // ARRAY of strings
+    val moviesWithWords = moviesDF.select(
+      col("Title"),
+      split(col("Title"), " |,").as("Title_Words")
+    ) // ARRAY of strings
 
     moviesWithWords.select(
       col("Title"),
-      expr("Title_Words[0]"), // indexing
+      expr("Title_Words[0]"),   // indexing
       size(col("Title_Words")), // array size
       array_contains(col("Title_Words"), "Love") // look for value in array
     )

@@ -25,7 +25,7 @@ object Joins {
       .json("src/main/resources/data/bands.json")
 
     // inner joins
-    val joinCondition = guitaristsDF.col("band") === bandsDF.col("id")
+    val joinCondition     = guitaristsDF.col("band") === bandsDF.col("id")
     val guitaristsBandsDF = guitaristsDF.join(bandsDF, joinCondition, "inner")
 
     // outer joins
@@ -44,7 +44,6 @@ object Joins {
     // anti-joins = everything in the left DF for which there is NO row in the right DF satisfying the condition
     guitaristsDF.join(bandsDF, joinCondition, "left_anti")
 
-
     // things to bear in mind
     // guitaristsBandsDF.select("id", "band").show // this crashes
 
@@ -59,19 +58,21 @@ object Joins {
     guitaristsDF.join(bandsModDF, guitaristsDF.col("band") === bandsModDF.col("bandId"))
 
     // using complex types
-    guitaristsDF.join(guitarsDF.withColumnRenamed("id", "guitarId"), expr("array_contains(guitars, guitarId)"))
+    guitaristsDF.join(
+      guitarsDF.withColumnRenamed("id", "guitarId"),
+      expr("array_contains(guitars, guitarId)")
+    )
 
-    /**
-      * Exercises
+    /** Exercises
       *
-      * 1. show all employees and their max salary
-      * 2. show all employees who were never managers
-      * 3. find the job titles of the best paid 10 employees in the company
+      *   1. show all employees and their max salary
+      *   2. show all employees who were never managers
+      *   3. find the job titles of the best paid 10 employees in the company
       */
 
-    val driver = "org.postgresql.Driver"
-    val url = "jdbc:postgresql://localhost:5432/rtjvm"
-    val user = "docker"
+    val driver   = "org.postgresql.Driver"
+    val url      = "jdbc:postgresql://localhost:5432/rtjvm"
+    val user     = "docker"
     val password = "docker"
 
     def readTable(tableName: String) = spark.read
@@ -83,14 +84,14 @@ object Joins {
       .option("dbtable", s"public.$tableName")
       .load()
 
-    val employeesDF = readTable("employees")
-    val salariesDF = readTable("salaries")
+    val employeesDF    = readTable("employees")
+    val salariesDF     = readTable("salaries")
     val deptManagersDF = readTable("dept_manager")
-    val titlesDF = readTable("titles")
+    val titlesDF       = readTable("titles")
 
     // 1
     val maxSalariesPerEmpNoDF = salariesDF.groupBy("emp_no").agg(max("salary").as("maxSalary"))
-    val employeesSalariesDF = employeesDF.join(maxSalariesPerEmpNoDF, "emp_no")
+    val employeesSalariesDF   = employeesDF.join(maxSalariesPerEmpNoDF, "emp_no")
 
     // 2
     val empNeverManagersDF = employeesDF.join(
@@ -101,10 +102,9 @@ object Joins {
 
     // 3
     val mostRecentJobTitlesDF = titlesDF.groupBy("emp_no", "title").agg(max("to_date"))
-    val bestPaidEmployeesDF = employeesSalariesDF.orderBy(col("maxSalary").desc).limit(10)
-    val bestPaidJobsDF = bestPaidEmployeesDF.join(mostRecentJobTitlesDF, "emp_no")
+    val bestPaidEmployeesDF   = employeesSalariesDF.orderBy(col("maxSalary").desc).limit(10)
+    val bestPaidJobsDF        = bestPaidEmployeesDF.join(mostRecentJobTitlesDF, "emp_no")
 
     bestPaidJobsDF.show()
   }
 }
-

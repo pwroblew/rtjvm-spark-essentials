@@ -15,7 +15,6 @@ object ManagingNulls {
       .option("inferSchema", "true")
       .json("src/main/resources/data/movies.json")
 
-
     // select the first non-null value
     moviesDF.select(
       col("Title"),
@@ -36,9 +35,9 @@ object ManagingNulls {
     // replace nulls
     moviesDF.na.fill(0, List("IMDB_Rating", "Rotten_Tomatoes_Rating"))
     moviesDF.na.fill(Map(
-      "IMDB_Rating" -> 0,
+      "IMDB_Rating"            -> 0,
       "Rotten_Tomatoes_Rating" -> 10,
-      "Director" -> "Unknown"
+      "Director"               -> "Unknown"
     ))
 
     // complex operations
@@ -47,7 +46,7 @@ object ManagingNulls {
       "IMDB_Rating",
       "Rotten_Tomatoes_Rating",
       "ifnull(Rotten_Tomatoes_Rating, IMDB_Rating * 10) as ifnull", // same as coalesce
-      "nvl(Rotten_Tomatoes_Rating, IMDB_Rating * 10) as nvl", // same
+      "nvl(Rotten_Tomatoes_Rating, IMDB_Rating * 10) as nvl",       // same
       "nullif(Rotten_Tomatoes_Rating, IMDB_Rating * 10) as nullif", // returns null if the two values are EQUAL, else first value
       "nvl2(Rotten_Tomatoes_Rating, IMDB_Rating * 10, 0.0) as nvl2" // if (first != null) second else third
     ).show()

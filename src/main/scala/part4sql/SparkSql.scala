@@ -24,7 +24,8 @@ object SparkSql {
     val americanCarsDF = spark.sql(
       """
         |select Name from cars where Origin = 'USA'
-      """.stripMargin)
+      """.stripMargin
+    )
 
     // we can run ANY SQL statement
     spark.sql("create database rtjvm")
@@ -32,9 +33,9 @@ object SparkSql {
     val databasesDF = spark.sql("show databases")
 
     // transfer tables from a DB to Spark tables
-    val driver = "org.postgresql.Driver"
-    val url = "jdbc:postgresql://localhost:5432/rtjvm"
-    val user = "docker"
+    val driver   = "org.postgresql.Driver"
+    val url      = "jdbc:postgresql://localhost:5432/rtjvm"
+    val user     = "docker"
     val password = "docker"
 
     def readTable(tableName: String) = spark.read
@@ -46,16 +47,17 @@ object SparkSql {
       .option("dbtable", s"public.$tableName")
       .load()
 
-    def transferTables(tableNames: List[String], shouldWriteToWarehouse: Boolean = false) = tableNames.foreach { tableName =>
-      val tableDF = readTable(tableName)
-      tableDF.createOrReplaceTempView(tableName)
+    def transferTables(tableNames: List[String], shouldWriteToWarehouse: Boolean = false) =
+      tableNames.foreach { tableName =>
+        val tableDF = readTable(tableName)
+        tableDF.createOrReplaceTempView(tableName)
 
-      if (shouldWriteToWarehouse) {
-        tableDF.write
-          .mode(SaveMode.Overwrite)
-          .saveAsTable(tableName)
+        if (shouldWriteToWarehouse) {
+          tableDF.write
+            .mode(SaveMode.Overwrite)
+            .saveAsTable(tableName)
+        }
       }
-    }
 
     transferTables(List(
       "employees",
@@ -63,19 +65,19 @@ object SparkSql {
       "titles",
       "dept_emp",
       "salaries",
-      "dept_manager")
-    )
+      "dept_manager"
+    ))
 
     // read DF from loaded Spark tables
     val employeesDF2 = spark.read.table("employees")
 
-    /**
-      * Exercises
+    /** Exercises
       *
-      * 1. Read the movies DF and store it as a Spark table in the rtjvm database.
-      * 2. Count how many employees were hired in between Jan 1 1999 and Jan 1 2000.
-      * 3. Show the average salaries for the employees hired in between those dates, grouped by department.
-      * 4. Show the name of the best-paying department for employees hired in between those dates.
+      *   1. Read the movies DF and store it as a Spark table in the rtjvm database.
+      *   2. Count how many employees were hired in between Jan 1 1999 and Jan 1 2000.
+      *   3. Show the average salaries for the employees hired in between those dates, grouped by
+      *      department.
+      *   4. Show the name of the best-paying department for employees hired in between those dates.
       */
 
     // 1

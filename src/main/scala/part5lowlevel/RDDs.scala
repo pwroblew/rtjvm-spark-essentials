@@ -23,13 +23,13 @@ object RDDs {
     val sc = spark.sparkContext
 
     // 1 - parallelize an existing collection
-    val numbers = 1 to 1000000
+    val numbers    = 1 to 1000000
     val numbersRDD = sc.parallelize(numbers)
 
     // 2 - reading from files
 
     def readStocks(filename: String) = {
-      val source = Source.fromFile(filename)
+      val source      = Source.fromFile(filename)
       val stockValues = source.getLines()
         .drop(1)
         .map(line => line.split(","))
@@ -54,7 +54,7 @@ object RDDs {
       .csv("src/main/resources/data/stocks.csv")
 
     import spark.implicits._
-    val stocksDS = stocksDF.as[StockValue]
+    val stocksDS   = stocksDF.as[StockValue]
     val stocksRDD3 = stocksDS.rdd
 
     // RDD -> DF
@@ -67,7 +67,7 @@ object RDDs {
 
     // distinct
     val msftRDD = stocksRDD.filter(_.symbol == "MSFT") // lazy transformation
-    val msCount = msftRDD.count() // eager ACTION
+    val msCount = msftRDD.count()                      // eager ACTION
 
     // counting
     val companyNamesRDD = stocksRDD.map(_.symbol).distinct() // also lazy
@@ -75,7 +75,7 @@ object RDDs {
     // min and max
     implicit val stockOrdering: Ordering[StockValue] =
       Ordering.fromLessThan[StockValue]((sa: StockValue, sb: StockValue) => sa.price < sb.price)
-    val minMsft = msftRDD.min() // action
+    val minMsft                                      = msftRDD.min() // action
 
     // reduce
     numbersRDD.reduce(_ + _)
@@ -102,13 +102,12 @@ object RDDs {
       .mode(SaveMode.Overwrite)
       .parquet("src/main/resources/data/stocks15")
 
-    /**
-      * Exercises
+    /** Exercises
       *
-      * 1. Read the movies.json as an RDD.
-      * 2. Show the distinct genres as an RDD.
-      * 3. Select all the movies in the Drama genre with IMDB rating > 6.
-      * 4. Show the average rating of movies by genre.
+      *   1. Read the movies.json as an RDD.
+      *   2. Show the distinct genres as an RDD.
+      *   3. Select all the movies in the Drama genre with IMDB rating > 6.
+      *   4. Show the average rating of movies by genre.
       */
 
     // 1
@@ -117,7 +116,11 @@ object RDDs {
       .json("src/main/resources/data/movies.json")
 
     val moviesRDD = moviesDF
-      .select(col("Title").as("title"), col("Major_Genre").as("genre"), col("IMDB_Rating").as("rating"))
+      .select(
+        col("Title").as("title"),
+        col("Major_Genre").as("genre"),
+        col("IMDB_Rating").as("rating")
+      )
       .where(col("genre").isNotNull and col("rating").isNotNull)
       .as[Movie]
       .rdd
@@ -129,7 +132,6 @@ object RDDs {
     val goodDramasRDD = moviesRDD.filter(movie => movie.genre == "Drama" && movie.rating > 6)
 
     // 4
-
 
     val avgRatingByGenreRDD = moviesRDD.groupBy(_.genre).map {
       case (genre, movies) => GenreAvgRating(genre, movies.map(_.rating).sum / movies.size)

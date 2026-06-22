@@ -15,7 +15,7 @@ object VariantType {
   val jsonDF = List(
     """ {"name":"Alice", "age": 30, "address": {"city":"NYC", "zip":12345} } """,
     """ {"name":"Bob", "age": 25, "skills": ["Scala", "Apache Spark"] } """,
-    """ {"name":"Charlie", "age": 40, "address": {"city":"SF"} } """,
+    """ {"name":"Charlie", "age": 40, "address": {"city":"SF"} } """
   ).toDF("raw_json")
 
   // parse the strings as variant types
@@ -51,7 +51,7 @@ object VariantType {
   // 2
   val dvdSalesDF = moviesDF.select(
     variant_get(col("movie"), "$.Title", "string").as("title"),
-    try_variant_get(col("movie"), "$.US_DVD_Sales", "string").as("title"),
+    try_variant_get(col("movie"), "$.US_DVD_Sales", "string").as("title")
   )
 
   def main(args: Array[String]): Unit = {
