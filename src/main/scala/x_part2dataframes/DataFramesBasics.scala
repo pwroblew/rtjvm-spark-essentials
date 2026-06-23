@@ -50,7 +50,7 @@ object DataFramesBasics {
     )
     // carsSchema.foreach(println)
 
-    val carsDFSchema = firstDF.schema
+    val carsDFSchema: StructType = firstDF.schema
     // carsDFSchema.foreach(println)
 
     val dataFrame2: DataFrame = spark.read
@@ -60,14 +60,14 @@ object DataFramesBasics {
     dataFrame2.show()
 
     // create rows by hand
-    val rows2 = Seq(
+    val rows2: Seq[Row] = Seq(
       Row("aa", 23, "USA"),
       Row("bb", 24, "Canada"),
       Row("cc", 25, "Mexico"),
       Row("dd", 26, "Bolivia")
     )
 
-    val tuples2 = Seq(
+    val tuples2: Seq[(String, Int, String)] = Seq(
       ("aa", 23, "USA"),
       ("bb", 24, "Canada"),
       ("cc", 25, "Mexico"),
@@ -82,6 +82,64 @@ object DataFramesBasics {
     val frame3: DataFrame = tuples2.toDF("abbreviation", "index", "Country")
     frame3.show()
     frame3.printSchema()
+
+    /** Exercise 1
+      *   - create a manual DF descibing smartphones and print its details to the console
+      *   - read another file from resources - movies.json
+      *     - print its schema
+      *     - count the number of rows, by calling `count`
+      */
+
+    val smartPhoneTuples: Seq[(String, String, Float, Int)] = Seq(
+      // manufacturer, model, screen size, camera MPixels
+      ("Motorola", "X 10", 9.7f, 12),
+      ("Xiaomi", "Book 12", 9.6f, 13),
+      ("Redmi", "Note 9", 10.3f, 11),
+      ("Google", "Pixel 3", 11.1f, 13)
+    )
+
+    val smartPhonesDF: DataFrame =
+      smartPhoneTuples.toDF("Manufacturer", "Model", "Screen size", "Camera MegaPixels")
+    smartPhonesDF.show()
+    smartPhonesDF.printSchema()
+
+    val moviesDF: DataFrame = spark.read
+      .format("json")
+      .option("inferSchema", "true")
+      .load("src/main/resources/data/movies.json")
+
+    val moviesSchema = StructType(
+      Array(
+        StructField("Title", StringType),
+        StructField("US_Gross", IntegerType),
+        StructField("Worldwide_Gross", IntegerType),
+        StructField("US_DVD_Sales", LongType),
+        StructField("Production_Budget", IntegerType),
+        StructField("Release_Date", StringType),
+        StructField("MPAA_Rating", StringType),
+        StructField("Running_Time_min", LongType),
+        StructField("Distributor", StringType),
+        StructField("Source", StringType),
+        StructField("Major_Genre", StringType),
+        StructField("Creative_Type", StringType),
+        StructField("Director", StringType),
+        StructField("Rotten_Tomatoes_Rating", IntegerType),
+        StructField("IMDB_Rating", FloatType),
+        StructField("IMDB_Votes", IntegerType)
+      )
+    )
+
+    moviesDF.show()
+    moviesDF.printSchema()
+    println(s"the count of movies: ${moviesDF.count()}")
+
+    val moviesDF2: DataFrame = spark.read
+      .format("json")
+      .schema(moviesSchema)
+      .load("src/main/resources/data/movies.json")
+    moviesDF2.show()
+    moviesDF2.printSchema()
+    println(s"the count of movies: ${moviesDF2.count()}")
 
   }
 
