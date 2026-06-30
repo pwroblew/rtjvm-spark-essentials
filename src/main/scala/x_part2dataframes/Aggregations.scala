@@ -20,9 +20,9 @@ object Aggregations {
     // moviesDF.show()
 
     import sparkSession.implicits._
-    moviesDF.select(count(column("Major_Genre"))).show()
     moviesDF.select(count("*")).show()
 
+    moviesDF.select(count(column("Major_Genre"))).show()
     moviesDF.select(countDistinct(column("Major_Genre"))).show()
     moviesDF.select(approx_count_distinct(column("Major_Genre"))).show()
 

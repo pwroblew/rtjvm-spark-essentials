@@ -14,22 +14,21 @@ object DataFramesBasics {
       .config("spark.master", "local")
       .getOrCreate()
 
-    // reading a data frame
+    // reading a data frame from a file
     val firstDF: DataFrame = spark.read
       .format("json")
       .option("inferSchema", "true")
       .load("src/main/resources/data/cars.json")
 
-    println("### printing the dataFrame - start")
+    // printing the data frame (first 20 rows usually)
     firstDF.show()
-    println("### printing the dataFrame - end")
 
-    println("### printing the schema from dataFrame - start")
+    // printing the schema od DF
     firstDF.printSchema()
-    println("### printing the schema - end")
 
+    // rows don't know schema, they are just tuples
     val rows: Array[Row] = firstDF.take(10)
-    // rows.foreach(println)
+    rows.foreach(println)
 
     // spark types
     val longType: LongType.type = LongType
@@ -48,7 +47,7 @@ object DataFramesBasics {
         StructField("Year", StringType)
       )
     )
-    // carsSchema.foreach(println)
+    carsSchema.foreach(println)
 
     val carsDFSchema: StructType = firstDF.schema
     // carsDFSchema.foreach(println)
@@ -67,21 +66,18 @@ object DataFramesBasics {
       Row("dd", 26, "Bolivia")
     )
 
+    // creating a data frame out of tuples #1
     val tuples2: Seq[(String, Int, String)] = Seq(
       ("aa", 23, "USA"),
       ("bb", 24, "Canada"),
       ("cc", 25, "Mexico"),
       ("dd", 26, "Bolivia")
     )
+    val frame2: DataFrame                   = spark.createDataFrame(tuples2)
 
-    val frame2: DataFrame = spark.createDataFrame(tuples2)
-    frame2.show()
-    frame2.printSchema()
-
+    // creating a data frame out of tuples #2
     import spark.implicits._
     val frame3: DataFrame = tuples2.toDF("abbreviation", "index", "Country")
-    frame3.show()
-    frame3.printSchema()
 
     /** Exercise 1
       *   - create a manual DF descibing smartphones and print its details to the console
@@ -103,11 +99,16 @@ object DataFramesBasics {
     smartPhonesDF.show()
     smartPhonesDF.printSchema()
 
+    // reading movies #1
     val moviesDF: DataFrame = spark.read
       .format("json")
       .option("inferSchema", "true")
       .load("src/main/resources/data/movies.json")
+    moviesDF.show()
+    moviesDF.printSchema()
+    println(s"the count of movies: ${moviesDF.count()}")
 
+    // reading movies #2
     val moviesSchema = StructType(
       Array(
         StructField("Title", StringType),
@@ -128,10 +129,6 @@ object DataFramesBasics {
         StructField("IMDB_Votes", IntegerType)
       )
     )
-
-    moviesDF.show()
-    moviesDF.printSchema()
-    println(s"the count of movies: ${moviesDF.count()}")
 
     val moviesDF2: DataFrame = spark.read
       .format("json")
