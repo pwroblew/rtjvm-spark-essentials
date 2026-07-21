@@ -25,9 +25,11 @@ object ComplexTypes {
         try_to_date(col("Release_Date"), "dd-MMM-yy"),
         try_to_date(col("Release_Date"), "d-MMM-yy"),
         try_to_date(col("Release_Date"), "yyyy-MM-dd")
+        // try_to_date(col("Release_Date"), "MMMMMMMM, yyyy")
       ).as("Real_Release_Date")
     )
     .where(col("Real_Release_Date").isNull)
+    .show()
 
   private val stocksDF: DataFrame = sparkSession.read
     .option("header", "true")
@@ -39,8 +41,8 @@ object ComplexTypes {
       try_to_date(col("date"), "MMM d yyyy").as("Real_Date"),
       col("price")
     )
-  // .filter(col("Real_Date").isNull)
-  // .show()
+    // .filter(col("Real_Date").isNull)
+    .show()
 
   // STRUCTURES
 
@@ -53,7 +55,14 @@ object ComplexTypes {
       col("Title"),
       col("Profit").getField("US_Gross").as("US_Profit")
     )
-  // .show()
+    .show()
+
+  moviesDF
+    .select(
+      col("Title"),
+      struct(col("US_Gross"), col("Worldwide_Gross")).as("Profit")
+    )
+    .show()
 
   // ARRAYS
   private val moviesWithWords: DataFrame = moviesDF

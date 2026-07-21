@@ -16,10 +16,11 @@ object CommonTypes {
     .json("src/main/resources/data/movies.json")
 
   // adding a plain value to DF
-  moviesDF.select(col("Title"), lit(47).as("plain_value"))
+  moviesDF.select(col("Title"), lit(47).as("plain_value")).show()
   moviesDF
     .withColumn("plain_value", expr("42"))
     .select(col("Title"), col("plain_value"))
+    .show()
 
   // BOOLEANS
   private val moviesDramaFilter: Column = col("Major_Genre") === "Drama"
@@ -45,7 +46,7 @@ object CommonTypes {
   // correlation
   private val ratingCorrelation: Double =
     moviesDF.stat.corr("IMDB_Rating", "Rotten_Tomatoes_Rating")
-  println(ratingCorrelation)
+  println(s"Correlation rating: $ratingCorrelation")
 
   // STRINGS
 

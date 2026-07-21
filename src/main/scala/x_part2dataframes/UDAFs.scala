@@ -37,6 +37,23 @@ object UDAFs {
       override def outputEncoder: Encoder[String]                  = Encoders.STRING
     }
 
+    import sparkSession.implicits._
+
+    object Concatenator2 extends Aggregator[String, List[String], String] {
+      override def zero: List[String] = List.empty
+
+      override def reduce(b: List[String], a: String): List[String] = a :: b
+
+      override def merge(b1: List[String], b2: List[String]): List[String] = b1 ::: b2
+
+      override def finish(reduction: List[String]): String =
+        reduction.reverse.mkString("< ", " |#| ", " >")
+
+      override def bufferEncoder: Encoder[List[String]] = implicitly[Encoder[List[String]]]
+
+      override def outputEncoder: Encoder[String] = Encoders.STRING
+    }
+
     // 2. register the above as a UDAF
     val concatenatorUDAF = udaf(Concatenator)
 
@@ -47,6 +64,11 @@ object UDAFs {
     allCarNamesDF.write
       .mode(SaveMode.Overwrite)
       .json("src/main/resources/data/cars-names.json")
+
+    val concaternator2: UserDefinedFunction = udaf(Concatenator2)
+    carsDF.select(concaternator2(col("Name")).as("ALL_NAMES")).write
+      .mode(SaveMode.Overwrite)
+      .json("src/main/resources/data/cars-names2.json")
 
     // lets evaluate CGR (Compound Growth Rate)
 

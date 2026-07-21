@@ -1,7 +1,7 @@
 package x_part2dataframes
 
-import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
 object Joins {
   def main(args: Array[String]): Unit = {
@@ -29,21 +29,27 @@ object Joins {
       .json("src/main/resources/data/bands.json")
 
 //    guitarsDF.show()
-//    guitaristsDF.show()
-//    bandsDF.show()
+    guitaristsDF.show()
+    bandsDF.show()
 
     val joinCondition: Column      = guitaristsDF.col("band") === bandsDF.col("id")
     val guitaristsBands: DataFrame =
       guitaristsDF.join(bandsDF, joinCondition, "inner") // inner is default
+    println("**** inner join ****")
     guitaristsBands.show()
 
+    println("**** left_outer join ****")
     guitaristsDF.join(bandsDF, joinCondition, "left_outer").show()
+    println("**** right_outer join ****")
     guitaristsDF.join(bandsDF, joinCondition, "right_outer").show()
+    println("**** outer join ****")
     guitaristsDF.join(bandsDF, joinCondition, "outer").show()
 
     // semi-joins
+    println("**** left_semi join ****")
     guitaristsDF.join(bandsDF, joinCondition, "left_semi").show()
     // anti-join
+    println("**** left_anti join ****")
     guitaristsDF.join(bandsDF, joinCondition, "left_anti").show()
 
     /*

@@ -1,7 +1,7 @@
 package x_part2dataframes
 
-import org.apache.spark.sql.classic.{DataFrame, RelationalGroupedDataset, SparkSession}
-import org.apache.spark.sql.functions.{sum, _}
+import org.apache.spark.sql.classic.{DataFrame, SparkSession}
+import org.apache.spark.sql.functions._
 
 object Aggregations {
   def main(args: Array[String]): Unit = {
@@ -18,8 +18,6 @@ object Aggregations {
       .json("src/main/resources/data/movies.json")
 
     // moviesDF.show()
-
-    import sparkSession.implicits._
     moviesDF.select(count("*")).show()
 
     moviesDF.select(count(column("Major_Genre"))).show()

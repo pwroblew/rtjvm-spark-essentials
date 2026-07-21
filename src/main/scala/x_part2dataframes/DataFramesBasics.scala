@@ -57,6 +57,7 @@ object DataFramesBasics {
       .schema(carsSchema)
       .load("src/main/resources/data/cars.json")
     dataFrame2.show()
+    dataFrame2.printSchema()
 
     // create rows by hand
     val rows2: Seq[Row] = Seq(
@@ -74,6 +75,7 @@ object DataFramesBasics {
       ("dd", 26, "Bolivia")
     )
     val frame2: DataFrame                   = spark.createDataFrame(tuples2)
+    val rows1: Array[Row] = frame2.take(3)
 
     // creating a data frame out of tuples #2
     import spark.implicits._

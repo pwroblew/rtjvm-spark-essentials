@@ -1,16 +1,9 @@
 package x_part2dataframes
 
-import org.apache.spark.sql.{Column, Row}
 import org.apache.spark.sql.classic.{DataFrame, Dataset, SparkSession}
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.types.{
-  FloatType,
-  IntegerType,
-  LongType,
-  StringType,
-  StructField,
-  StructType
-}
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.{Column, Row}
 
 object ColumnsAndExpressions {
   def main(args: Array[String]): Unit = {

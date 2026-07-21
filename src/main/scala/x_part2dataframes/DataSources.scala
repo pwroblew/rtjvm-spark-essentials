@@ -1,16 +1,7 @@
 package x_part2dataframes
 
+import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, SaveMode, SparkSession}
-import org.apache.spark.sql.types.{
-  DateType,
-  DoubleType,
-  FloatType,
-  IntegerType,
-  LongType,
-  StringType,
-  StructField,
-  StructType
-}
 
 object DataSources {
 
@@ -61,6 +52,7 @@ object DataSources {
       .save("src/main/resources/data/cars2.json")
 
     // JSON flags
+    println("******* JSON flags ********")
 
     val carsSchemaWithData     = StructType(
       Array(
@@ -78,7 +70,7 @@ object DataSources {
     val carsJsonDF1: DataFrame = spark.read
       .schema(carsSchemaWithData)
       .options(Map(
-        "dateFormat"        -> "yyy-MM-dd",
+        "dateFormat"        -> "yyyy-MM-dd",
         "allowSingleQuotes" -> "true",
         "compression"       -> "uncompressed" // bzip2, gzip, etc...
       ))
@@ -167,9 +159,11 @@ object DataSources {
       .options(Map(
         "sep" -> "\t"
       ))
+      .mode(SaveMode.Overwrite)
       .save("src/main/resources/data/movies.csv")
 
     moviesDF.write
+      .mode(SaveMode.Overwrite)
       .save("src/main/resources/data/movies.parquet")
 
     moviesDF.write
@@ -181,6 +175,7 @@ object DataSources {
         "password" -> "docker",
         "dbtable"  -> "public.movies"
       ))
+      .mode(SaveMode.Overwrite)
       .save()
 
   }
