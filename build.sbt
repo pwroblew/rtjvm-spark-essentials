@@ -16,5 +16,6 @@ libraryDependencies ++= Seq(
   "org.apache.logging.log4j" % "log4j-core" % log4jVersion,
   // postgres for DB connectivity
   "org.postgresql"           % "postgresql" % postgresVersion,
-  "org.typelevel"           %% "cats-core"  % "2.10.0"
+  "org.typelevel"           %% "cats-core"  % "2.10.0",
+  "org.knowm.xchart"         % "xchart"     % "3.8.8"
 )
